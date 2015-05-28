@@ -1,0 +1,104 @@
+import imp
+import os
+import sys
+
+from six.moves.queue import Queue
+
+from bokeh.settings import settings as bokeh_settings
+
+from pyramid.config import Configurator
+from pyramid.session import SignedCookieSessionFactory
+
+from . import websocket
+from .settings import Settings
+from .zmqpub import Publisher
+
+from .server_backends import (
+    InMemoryServerModelStorage,
+    MultiUserAuthentication,
+    RedisServerModelStorage,
+    ShelveServerModelStorage,
+    SingleUserAuthentication,
+)
+from .serverbb import (
+    InMemoryBackboneStorage,
+    RedisBackboneStorage,
+    ShelveBackboneStorage,
+)
+
+REDIS_PORT = 6379
+
+def current_user(request):
+    return request.registry.authentication.current_user(request)
+
+def main(global_config, **raw_settings):
+    """ This function returns a Pyramid WSGI application representing the Bokeh
+    server.
+    """
+    config = Configurator(settings=raw_settings)
+    settings = Settings()
+    settings = settings.from_dict(raw_settings)
+    config.registry.bokehserver_settings = settings
+
+    backend = settings.model_backend
+    if backend['type'] == 'redis':
+        import redis
+        rhost = backend.get('redis_host', '127.0.0.1')
+        rport = backend.get('redis_port', REDIS_PORT)
+        bbstorage = RedisBackboneStorage(
+            redis.Redis(host=rhost, port=rport, db=2)
+            )
+        servermodel_storage = RedisServerModelStorage(
+            redis.Redis(host=rhost, port=rport, db=3)
+            )
+    elif backend['type'] == 'memory':
+        bbstorage = InMemoryBackboneStorage()
+        servermodel_storage = InMemoryServerModelStorage()
+
+    elif backend['type'] == 'shelve':
+        bbstorage = ShelveBackboneStorage()
+        servermodel_storage = ShelveServerModelStorage()
+
+    if not settings.multi_user:
+        authentication = SingleUserAuthentication()
+    else:
+        authentication = MultiUserAuthentication()
+    url_prefix = settings.url_prefix
+    publisher = Publisher(settings.ctx, settings.pub_zmqaddr, Queue())
+
+    for script in settings.scripts:
+        script_dir = os.path.dirname(script)
+        if script_dir not in sys.path:
+            print ("adding %s to python path" % script_dir)
+            sys.path.append(script_dir)
+        print ("importing %s" % script)
+        imp.load_source("_bokeh_app", script)
+
+    config.registry.url_prefix = url_prefix
+    config.registry.publisher = publisher
+    config.registry.wsmanager = websocket.WebSocketManager()
+    config.registry.backend = backend
+    config.registry.servermodel_storage = servermodel_storage
+    config.registry.backbone_storage = bbstorage
+    config.registry.authentication = authentication
+    config.registry.bokehjsdir = bokeh_settings.bokehjsdir()
+    config.registry.bokehjssrcdir = bokeh_settings.bokehjssrcdir()
+
+    # add a ``request.current_user()`` API
+    config.add_request_method(current_user)
+
+    # configure a session factory for request.session access
+    session_factory = SignedCookieSessionFactory(settings.secret_key)
+    config.set_session_factory(session_factory)
+
+    # do jinja2 setup; files ending in .html and .js will be considered
+    # jinja2 templates
+    config.include('pyramid_jinja2')
+    config.add_jinja2_renderer('.html')
+    config.add_jinja2_renderer('.js')
+
+    # register routes and default views
+    config.include('.views')
+
+    # return a WSGI application
+    return config.make_wsgi_app()
