@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}</title>
     {# TODO: Remove this in favor of bundling inside bokeh.css #}
-    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ request.static_url('pyramid_bokehserver:static/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     {% block head %}
     {% endblock %}
   </head>
@@ -13,3 +13,4 @@
     {% endblock %}
   </body>
 </html>
+

@@ -184,7 +184,7 @@ class SingleUserAuthentication(AbstractAuthentication):
     def can_read_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
         return True
 
-    def current_user_name(self):
+    def current_user_name(self, request):
         return "defaultuser"
 
     def current_user(self, request):

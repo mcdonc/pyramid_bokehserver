@@ -76,6 +76,9 @@ def includeme(config):
     if jssrcdir is not None:
         config.add_static_view('bokehjs/src', jssrcdir, cache_max_age=3600)
 
+    config.add_static_view(
+        'static', 'pyramid_bokehserver:static', cache_max_age=3600)
+
     # notfound view (append_slash needed for /doc vs. doc/ etc)
     config.add_notfound_view(notfound, append_slash=True)
 
