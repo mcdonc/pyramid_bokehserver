@@ -9,8 +9,8 @@ from bokeh.settings import settings as bokeh_settings
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 
-from . import websocket
 from .settings import Settings
+from . import websocket
 from .zmqpub import Publisher
 
 from .server_backends import (
@@ -37,7 +37,8 @@ def main(global_config, **raw_settings):
     """
     config = Configurator(settings=raw_settings)
     settings = Settings()
-    settings = settings.from_dict(raw_settings)
+    settings.reset()
+    settings.from_dict(raw_settings)
     config.registry.bokehserver_settings = settings
 
     backend = settings.model_backend

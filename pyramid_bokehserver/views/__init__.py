@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPNotFound
 
-from bokeh.settings import settings
+from bokeh.settings import settings as bokeh_settings
 
 def notfound(request):
     return HTTPNotFound()
@@ -61,16 +61,20 @@ def includeme(config):
         'bokeh.showobj', '/bokeh/doc/{docid}/{objid}')
     config.add_route(
         'bokeh.wsurl', '/bokeh/wsurl/')
+    config.add_route(
+        'bokeh.ping', '/bokeh/ping')
 
     config.add_route(
         'bokeh.jsgenerate',
         '/bokeh/jsgenerate/{parentname}/{modulename}/{classname}')
 
+    jsdir = bokeh_settings.bokehjsdir()
+    jssrcdir = bokeh_settings.bokehjssrcdir()
+
     # static views
-    config.add_static_view(
-        'bokehjs/static', settings.bokehjsdir(), cache_max_age=3600)
-    config.add_static_view(
-        'bokehjs/src', settings.bokehjssrcdir(), cache_max_age=3600)
+    config.add_static_view('bokehjs/static', jsdir, cache_max_age=3600)
+    if jssrcdir is not None:
+        config.add_static_view('bokehjs/src', jssrcdir, cache_max_age=3600)
 
     # notfound view (append_slash needed for /doc vs. doc/ etc)
     config.add_notfound_view(notfound, append_slash=True)

@@ -233,7 +233,7 @@ def show_doc_by_title(request):
 
 @view_config(
     route_name='bokeh.docs',
-    request_methods=('GET', 'OPTIONS'),
+    request_method=('GET', 'OPTIONS'),
     decorator=(login_required, crossdomain(origin='*', headers=None))
     )
 def doc_by_title(request):

@@ -101,6 +101,3 @@ class Settings(object):
             if self.url_prefix.endswith("/"):
                 self.url_prefix = self.url_prefix[:-1]
 
-settings = Settings()
-settings.reset()
-del Settings

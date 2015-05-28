@@ -8,7 +8,7 @@ from tornado import ioloop
 
 from .. import websocket
 from .. import services
-from .. import _makeapp
+from .. import main
 from ..models import docs
 from ..models import convenience as mconv
 
@@ -16,11 +16,10 @@ from ..zmqsub import Subscriber
 from ..forwarder import Forwarder
 
 def run_server(arg=sys.argv):
-    wsgiapp = _makeapp({}) # XXX
+    wsgiapp = main(None) # XXX
     server_settings = wsgiapp.registry.bokehserver_settings
     tornado_app = SimpleBokehTornadoApp(
         wsgiapp,
-        server_settings,
         debug=server_settings.debug
         )
     if server_settings.model_backend.get('start-redis', False):
