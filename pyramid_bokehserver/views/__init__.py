@@ -65,7 +65,7 @@ def includeme(config):
         'bokeh.ping', '/bokeh/ping')
 
     config.add_route(
-        'bokeh.jsgenerate',
+        'bokeh.generatejs',
         '/bokeh/jsgenerate/{parentname}/{modulename}/{classname}')
 
     jsdir = bokeh_settings.bokehjsdir()

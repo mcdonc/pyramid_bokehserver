@@ -9,7 +9,6 @@ from bokeh.settings import settings as bokeh_settings
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 
-from .settings import Settings
 from . import websocket
 from .zmqpub import Publisher
 
@@ -28,17 +27,19 @@ from .serverbb import (
 
 REDIS_PORT = 6379
 
+DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'memory')
+if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
+    print("Unrecognized default backend: '%s'. Accepted values are: 'redis', 'shelve', 'memory'" % DEFAULT_BACKEND)
+    sys.exit(1)
+
 def current_user(request):
     return request.registry.authentication.current_user(request)
 
-def main(global_config, **raw_settings):
+def getapp(settings): # settings should be a bokehserver.settings.Settings
     """ This function returns a Pyramid WSGI application representing the Bokeh
     server.
     """
-    config = Configurator(settings=raw_settings)
-    settings = Settings()
-    settings.reset()
-    settings.from_dict(raw_settings)
+    config = Configurator(settings={})
     config.registry.bokehserver_settings = settings
 
     backend = settings.model_backend
@@ -72,8 +73,9 @@ def main(global_config, **raw_settings):
         if script_dir not in sys.path:
             print ("adding %s to python path" % script_dir)
             sys.path.append(script_dir)
-        print ("importing %s" % script)
-        imp.load_source("_bokeh_app", script)
+        print ("importing and scanning %s" % script)
+        mod = imp.load_source("_bokeh_app", script)
+        config.scan(mod)
 
     config.registry.url_prefix = url_prefix
     config.registry.publisher = publisher

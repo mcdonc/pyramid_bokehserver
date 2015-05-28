@@ -99,7 +99,7 @@ def _makedoc(request, redisconn, u, title):
     if isinstance(u, string_types):
         u = user.User.load(redisconn, u)
     clientdoc = request.registry.backbone_storage.get_document(docid)
-    prune(clientdoc)
+    prune(request, clientdoc)
     if u is not None:
         rw_users = [u.username]
         u.add_doc(docid, title)
