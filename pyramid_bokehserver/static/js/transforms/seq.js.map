@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "seq.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "seq.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,cAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,CAAA;;CAAA;;CADgB;CAAlB,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP;;CAAA;;CADiB;CAGnB,UAAO;CAAA,CACE,CADF,EACL,CAAA;CADK,CAEW,EAAA,EAAhB,IAAA;CAVD,KAQD;CAXF,EAGG;CAHH"
+}

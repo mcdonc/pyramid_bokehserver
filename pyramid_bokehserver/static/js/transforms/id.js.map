@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "id.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "id.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,YAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN;;CAAA;;CADe;CAAjB,GAGM;CACJ;;;;;CAAA;;CAAA,CAAA,CAAO,EAAP;;CAAA;;CADgB;CAGlB,UAAO;CAAA,CACE,GAAP,CAAA;CADK,CAEW,CAAA,CAAA,EAAhB,IAAA;CAVD,KAQD;CAXF,EAGG;CAHH"
+}

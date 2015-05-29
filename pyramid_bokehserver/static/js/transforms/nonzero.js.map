@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "nonzero.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "nonzero.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,sBAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,KAAA;;CAAA;;CADoB;CAAtB,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,EAAA;;CAAA;;CADqB;CAGvB,UAAO;CAAA,CACE,GAAP,CAAA,CADK;CAAA,CAEW,EAAA,EAAhB,EAAgB,EAAhB;CAVD,KAQD;CAXF,EAGG;CAHH"
+}

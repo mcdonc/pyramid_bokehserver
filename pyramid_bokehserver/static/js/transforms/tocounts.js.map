@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "tocounts.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "tocounts.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,wBAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,MAAA;;CAAA;;CADqB;CAAvB,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,GAAA;;CAAA;;CADsB;CAGxB,UAAO;CAAA,CACE,GAAP,CAAA,EADK;CAAA,CAEW,EAAA,EAAhB,GAAgB,CAAhB;CAVD,KAQD;CAXF,EAGG;CAHH"
+}

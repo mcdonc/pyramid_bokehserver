@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "remote_data_source.js",
+  "sourceRoot": "../../../src/coffee/source/",
+  "sources": [
+    "remote_data_source.coffee"
+  ],
+  "names": [],
+  "mappings": "AACA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAIG,GAJH,EAIG,CAAC,CAJG,EAAA,IAIJ,MAJI;CAML,OAAA,cAAA;CAAA,GAAM;CAAN;;;;;CAAA;;CAAA;;CAA+B,eAAgB;CAE/C,UAAO;CAAA,CAAsB,IAArB,UAAD,EAAC;CAJP,KAID;CARF,EAIG;CAJH"
+}

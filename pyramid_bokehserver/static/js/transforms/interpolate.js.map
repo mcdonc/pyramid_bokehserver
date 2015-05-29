@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "interpolate.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "interpolate.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,8BAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,SAAA;;CAAA;;CADwB;CAA1B,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,MAAA;;CAAA;;CADyB;CAG3B,UAAO;CAAA,CACE,GAAP,CAAA,KADK;CAAA,CAEW,EAAA,EAAhB,IAAA,EAAgB;CAVjB,KAQD;CAXF,EAGG;CAHH"
+}

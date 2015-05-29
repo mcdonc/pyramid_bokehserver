@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "autoencode.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "autoencode.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,4BAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,QAAA;;CAAA;;CADuB;CAAzB,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,KAAA;;CAAA;;CADwB;CAG1B,UAAO;CAAA,CACE,GAAP,CAAA,IADK;CAAA,CAEW,EAAA,EAAhB,IAAA,CAAgB;CAVjB,KAQD;CAXF,EAGG;CAHH"
+}

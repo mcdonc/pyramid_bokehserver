@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "tool_events.js",
+  "sourceRoot": "../../../src/coffee/common/",
+  "sources": [
+    "tool_events.coffee"
+  ],
+  "names": [],
+  "mappings": "AACA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAIG,GAJH,CAIG,CAAA,CAAC,CAJG,GAIJ,GAJI,OAAA;CAML,OAAA,6CAAA;CAAA,EAAS,CAAT,EAAA,CAAgB;CAAhB,GAEM;CACH;;;;;CAAA;;CAAA,EAAM,CAAN,QAAA;;CAAA;;CADsB;CAFzB,GAKM;CACJ;;;;;CAAA;;CAAA,EAAQ,EAAR,KAAA;;CAAA;;CADiC,OAAQ;CAG3C,UAAO;CAAA,CACI,IAAT,CAAA,GADK;CAAA,CAEa,EAAA,EAAlB,MAAA,QAAkB;CAZnB,KAUD;CAdF,EAIG;CAJH"
+}

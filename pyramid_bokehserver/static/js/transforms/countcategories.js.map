@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "countcategories.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "countcategories.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,sCAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,aAAA;;CAAA;;CAD4B;CAA9B,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,UAAA;;CAAA;;CAD6B;CAG/B,UAAO;CAAA,CACE,GAAP,CAAA,SADK;CAAA,CAEW,EAAA,EAAhB,IAAA,MAAgB;CAVjB,KAQD;CAXF,EAGG;CAHH"
+}

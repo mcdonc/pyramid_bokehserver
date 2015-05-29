@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "interpolatecolor.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "interpolatecolor.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,wCAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,cAAA;;CAAA;;CAD6B;CAA/B,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,WAAA;;CAAA;;CAD8B;CAGhC,UAAO;CAAA,CACE,GAAP,CAAA,UADK;CAAA,CAEW,EAAA,EAAhB,IAAA,OAAgB;CAVjB,KAQD;CAXF,EAGG;CAHH"
+}

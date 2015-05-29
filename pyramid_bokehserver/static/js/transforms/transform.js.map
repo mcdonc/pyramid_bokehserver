@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "transform.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "transform.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAEG,GAFH,GAEI,IAAD,UAFI;CAIL,OAAA,OAAA;WAAM;CAAN;;;;;CAAA;;CAAA;;CAAwB;CAJ1B,EAEG;CAFH"
+}

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "count.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "count.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,kBAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,GAAA;;CAAA;;CADkB;CAApB,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP;;CAAA;;CADmB;CAGrB,UAAO;CAAA,CACE,GAAP,CAAA;CADK,CAEW,EAAA,EAAhB,IAAA;CAVD,KAQD;CAXF,EAGG;CAHH"
+}

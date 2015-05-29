@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "dom_util.js",
+  "sourceRoot": "../../../src/coffee/util/",
+  "sources": [
+    "dom_util.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,CAAA,CAAiC,GAAjC,EAAO,CAA2B,GAA3B;CAEL,OAAA,MAAA;CAAA,CAAiB,CAAA,CAAjB,KAAkB,KAAlB;CACE,SAAA,OAAA;SAAA,GAAA;CAAA,EAAU,GAAV,CAAA,EAAU;CACR,CAAwC,EAArC,IAAH,OAAG;CACD,OAAA,EAAA,GAAA;CACA,CAAA,eAAA;UAHM;CAAV,MAAU;CAIa,CAAS,CAArB,IAAA,CAAX,GAAW,EAAX;CALF,IAAiB;CAOjB,UAAO;CAAA,CACW,IAAhB,QAAA;CAV6B,KAS/B;CATF,EAAiC;CAAjC"
+}

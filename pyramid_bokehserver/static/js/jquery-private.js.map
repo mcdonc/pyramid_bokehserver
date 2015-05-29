@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "jquery-private.js",
+  "sourceRoot": "../../src/coffee/",
+  "sources": [
+    "jquery-private.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,CAAA,CAAmB,GAAnB,EAAO,CAAa;CACnB,CAAS,EAAF,MAAA,CAAA;CADR,EAAmB;CAAnB"
+}

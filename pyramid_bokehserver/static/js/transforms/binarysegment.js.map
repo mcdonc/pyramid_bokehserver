@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "binarysegment.js",
+  "sourceRoot": "../../../src/coffee/transforms/",
+  "sources": [
+    "binarysegment.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAHI,MAAA;CAKL,OAAA,kCAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,WAAA;;CAAA;;CAD0B;CAA5B,GAGM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,QAAA;;CAAA;;CAD2B;CAG7B,UAAO;CAAA,CACE,GAAP,CAAA,OADK;CAAA,CAEW,EAAA,EAAhB,IAAA,IAAgB;CAVjB,KAQD;CAXF,EAGG;CAHH"
+}
