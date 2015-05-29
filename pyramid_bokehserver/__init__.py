@@ -75,7 +75,10 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
             sys.path.append(script_dir)
         print ("importing and scanning %s" % script)
         mod = imp.load_source("_bokeh_app", script)
-        config.scan(mod)
+        if hasattr(mod, 'includeme'):
+            config.include(mod)
+        else:
+            config.scan(mod)
 
     config.registry.url_prefix = url_prefix
     config.registry.publisher = publisher

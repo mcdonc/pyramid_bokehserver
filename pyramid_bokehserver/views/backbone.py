@@ -14,11 +14,6 @@ from ..serverbb import get_temporary_docid, BokehServerTransaction
 from ..views import make_json
 from ..models import docs
 
-def init_bokeh(request, clientdoc):
-    request.bokeh_server_document = clientdoc
-    clientdoc.autostore = False
-    clientdoc.autoadd = False
-
 @view_config(
     route_name='bokeh.gc',
     request_method='POST',

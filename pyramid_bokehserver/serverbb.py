@@ -374,7 +374,6 @@ class BokehServerTransaction(object):
             return self.server_docobj.docid
 
     def load(self, gc=False):
-        from .views.backbone import init_bokeh
         clientdoc = self.request.registry.backbone_storage.get_document(
             self.server_docobj.docid)
         if self.temporary_docid:
@@ -400,3 +399,8 @@ class BokehServerTransaction(object):
             temporary_docid=self.temporary_docid
         )
         logger.debug("stored %s models", len(self.changed))
+
+def init_bokeh(request, clientdoc):
+    request.bokeh_server_document = clientdoc
+    clientdoc.autostore = False
+    clientdoc.autoadd = False

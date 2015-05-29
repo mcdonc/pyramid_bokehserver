@@ -16,7 +16,7 @@ from pyramid.renderers import render_to_response
 from bokeh.exceptions import DataIntegrityException
 from bokeh.resources import Resources
 
-from ..views.backbone import init_bokeh
+from ..serverbb import init_bokeh
 from ..views.main import _makedoc
 
 def object_page(prefix):
@@ -58,7 +58,7 @@ def object_page(prefix):
             ## initialize our plotting APIs to use that document
 
             init_bokeh(request, clientdoc)
-            obj = func(context, request)
+            obj = func()
             clientdoc.add(obj)
             request.registry.backbone_storage.store_document(clientdoc)
             if hasattr(obj, 'extra_generated_classes'):
