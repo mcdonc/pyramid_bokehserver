@@ -363,7 +363,7 @@ def show_obj(request):
 
 @view_config(
     route_name='bokeh.wsurl',
-#    request_method=('GET', 'OPTIONS'),
+    request_method=('GET', 'OPTIONS'),
     renderer='string',
     decorator=crossdomain(origin="*", headers=None)
     )
