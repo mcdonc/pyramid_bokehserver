@@ -113,8 +113,12 @@ def _makedoc(request, redisconn, u, title):
     request.registry.backbone_storage.store_document(clientdoc)
     return doc
 
-@view_config(route_name='bokeh.docs', request_method='POST', renderer='json',
-             decorator=login_required)
+@view_config(
+    route_name='bokeh.docs',
+    request_method='POST',
+    renderer='json',
+    decorator=login_required
+    )
 def makedoc(request):
     json_body = request.json_body
     if json_body:
@@ -131,8 +135,12 @@ def makedoc(request):
     request.registry.publisher.send("bokehuser:" + bokehuser.username, msg)
     return jsonstring
 
-@view_config(route_name='bokeh.doc', request_method='DELETE', renderer='json',
-             decorator=login_required)
+@view_config(
+    route_name='bokeh.doc',
+    request_method='DELETE',
+    renderer='json',
+    decorator=login_required
+    )
 def deletedoc(request):
     docid = request.matchdict['docid']
     bokehuser = request.current_user()
@@ -146,8 +154,11 @@ def deletedoc(request):
     request.registry.publisher.send("bokehuser:" + bokehuser.username, msg)
     return jsonstring
 
-@view_config(route_name='bokeh.getdocapikey', renderer='json',
-             decorator=handle_auth_error)
+@view_config(
+    route_name='bokeh.getdocapikey',
+    renderer='json',
+    decorator=handle_auth_error
+    )
 def get_doc_api_key(request):
     docid = request.matchdict['docid']
     doc = docs.Doc.load(request.registry.servermodel_storage, docid)
@@ -159,9 +170,12 @@ def get_doc_api_key(request):
         return {'readonlyapikey' : t.server_docobj.readonlyapikey}
 
 
-@view_config(route_name='bokeh.userinfo', request_method=('GET', 'OPTIONS'),
-             renderer='json',
-             decorator=(login_required, crossdomain(origin='*', headers=None)))
+@view_config(
+    route_name='bokeh.userinfo',
+    request_method=('GET', 'OPTIONS'),
+    renderer='json',
+    decorator=(login_required, crossdomain(origin='*', headers=None))
+    )
 def get_user(request):
     bokehuser = request.current_user()
     content = protocol.serialize_web(bokehuser.to_public_json())
@@ -347,8 +361,12 @@ def show_obj(request):
         )
     return info
 
-@view_config(route_name='bokeh.wsurl', request_method=('GET', 'OPTIONS'),
-             renderer='string', decorator=crossdomain(origin="*", headers=None))
+@view_config(
+    route_name='bokeh.wsurl',
+#    request_method=('GET', 'OPTIONS'),
+    renderer='string',
+    decorator=crossdomain(origin="*", headers=None)
+    )
 def wsurl(request):
     server_settings = request.registry.bokehserver_settings
     if server_settings.ws_conn_string:

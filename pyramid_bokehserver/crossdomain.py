@@ -22,11 +22,6 @@ def crossdomain(origin=None, methods=None, headers=None,
     if isinstance(max_age, timedelta):
         max_age = max_age.total_seconds()
 
-    def get_methods():
-        return methods
-        options_resp = Response()
-        return options_resp.headers['allow']
-
     def decorator(f):
         @wraps(f)
         def wrapped_function(context, request):
@@ -40,11 +35,12 @@ def crossdomain(origin=None, methods=None, headers=None,
             h = resp.headers
 
             h['Access-Control-Allow-Origin'] = origin
-            h['Access-Control-Allow-Methods'] = get_methods()
             h['Access-Control-Max-Age'] = str(max_age)
             requested_headers = request.headers.get(
                 'Access-Control-Request-Headers'
             )
+            if methods is not None:
+                h['Access-Control-Allow-Methods'] = methods
             if headers is not None:
                 h['Access-Control-Allow-Headers'] = headers
             elif requested_headers :

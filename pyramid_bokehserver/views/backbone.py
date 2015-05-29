@@ -75,7 +75,7 @@ def bulk_upsert(request):
     else:
         clientdoc.load(*data, events='existing', dirty=True)
     t.save()
-    msg = ws_update(clientdoc, t.write_docid, t.changed)
+    msg = ws_update(request, clientdoc, t.write_docid, t.changed)
     return msg
 
 def ws_update(request, clientdoc, docid, models):
@@ -127,7 +127,7 @@ def create(request):
                   'attributes' : modeldata}]
     t.clientdoc.load(*modeldata, dirty=True)
     t.save()
-    ws_update(t.clientdoc, t.write_docid, modeldata) # XXX require request
+    ws_update(request, t.clientdoc, t.write_docid, modeldata)
     return make_json(protocol.serialize_json(modeldata[0]['attributes']))
 
 def _bulkget(request, docid, typename=None):
@@ -187,7 +187,6 @@ def bulkget_with_typename(request):
     docid, typename = request.matchdict['docid'], request.matchdict['typename']
     return _bulkget(request, docid, typename)
 
-@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
 def _handle_specific_model(request):
     md = request.matchdict
     docid, typename, id = md['docid'], md['typename'],md['id']
@@ -205,7 +204,10 @@ def _handle_specific_model(request):
 @view_config(
     route_name='bokeh.handle_model',
     request_method=('GET', 'OPTIONS'),
-    decorator=handle_auth_error,
+    decorator=(
+        handle_auth_error,
+        crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
+        )
     )
 def _handle_specific_model_get(request):
     ''' Retrieve a specific model with a given id and typename for a
@@ -225,7 +227,10 @@ def _handle_specific_model_get(request):
 @view_config(
     route_name='bokeh.handle_model',
     request_method='PUT',
-    decorator=handle_auth_error,
+    decorator=(
+        handle_auth_error,
+        crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
+        )
     )
 def _handle_specific_model_put(request):
     ''' Update a specific model with a given id and typename for a
@@ -245,7 +250,10 @@ def _handle_specific_model_put(request):
 @view_config(
     route_name='bokeh.handle_model',
     request_method='PATCH',
-    decorator=handle_auth_error,
+    decorator=(
+        handle_auth_error,
+        crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
+        )
     )
 def _handle_specific_model_patch(request):
     ''' Update a specific model with a given id and typename for a
@@ -265,7 +273,10 @@ def _handle_specific_model_patch(request):
 @view_config(
     route_name='bokeh.handle_model',
     request_method='DELETE',
-    decorator=handle_auth_error,
+    decorator=(
+        handle_auth_error,
+        crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
+        )
     )
 def _handle_specific_model_delete(request):
     ''' Delete a specific model with a given id and typename for a
@@ -307,7 +318,7 @@ def update(request, docid, typename, id):
         request, bokehuser, doc, 'rw', temporary_docid=temporary_docid
     )
     t.load()
-    modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
+    modeldata = protocol.deserialize_json(request.body.decode('utf-8'))
     ### horrible hack, we need to pop off the noop object if it exists
     modeldata.pop('noop', None)
     clientdoc = t.clientdoc
@@ -318,7 +329,7 @@ def update(request, docid, typename, id):
                  'attributes' : modeldata}
     clientdoc.load(modeldata, events='existing', dirty=True)
     t.save()
-    ws_update(clientdoc, t.write_docid, t.changed) # XXX requires_request
+    ws_update(request, clientdoc, t.write_docid, t.changed)
     # backbone expects us to send back attrs of this model, but it doesn't
     # make sense to do so because we modify other models, and we want this to
     # all go out over the websocket channel

@@ -133,12 +133,12 @@ class AbstractAuthentication(object):
             )
         return bokehuser
 
-    def login_get(self):
+    def login_get(self, request):
         """custom login view
         """
         raise NotImplementedError
 
-    def login_post(self):
+    def login_post(self, request):
         """custom login submission. Request form will have
         username, password, and possibly an api field.
         api indicates that we are
@@ -147,18 +147,18 @@ class AbstractAuthentication(object):
         """
         raise NotImplementedError
 
-    def login_from_apikey(self):
+    def login_from_apikey(self, request):
         """login URL using apikey.  This is usually generated
         by the python client
         """
         raise NotImplementedError
 
-    def register_get(self):
+    def register_get(self, request):
         """custom register view
         """
         raise NotImplementedError
 
-    def register_post(self):
+    def register_post(self, request):
         """custom register submission
         request form will have username, password, password_confirm,
         and possibly an api field. api indicates that we are
@@ -167,21 +167,23 @@ class AbstractAuthentication(object):
         """
         raise NotImplementedError
 
-    def can_write_doc(self, docid):
+    def can_write_doc(self, request, docid):
         """whether or not a user can write to a doc
         """
         raise NotImplementedError
 
-    def can_read_doc(self, docid):
+    def can_read_doc(self, request, docid):
         """whether or not a user can read a doc
         """
         raise NotImplementedError
 
 class SingleUserAuthentication(AbstractAuthentication):
-    def can_write_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
+    def can_write_doc(
+        self, request, doc_or_docid, temporary_docid=None, userobj=None):
         return True
 
-    def can_read_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
+    def can_read_doc(
+        self, request, doc_or_docid, temporary_docid=None, userobj=None):
         return True
 
     def current_user_name(self, request):

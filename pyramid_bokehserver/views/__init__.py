@@ -94,9 +94,11 @@ def make_json(
     """ Like jsonify, except accepts string, so we can do our own custom
     json serialization.  should move this to continuumweb later
     """
-    return Response(
+    r = Response(
         body=jsonstring,
         status=status_code,
-        headerlist=(headers or {}),
         content_type='application/json'
     )
+    if headers:
+        r.headers.update(headers)
+    return r

@@ -1,7 +1,7 @@
 {% extends "_auth_base.html"%}
 
 {% block main %}
-<form role="form" action="/bokeh/register" method="POST">
+<form role="form" action="{{request.route_url('bokeh.register')}}" method="POST">
   <div class="form-group">
     <label for="username">username</label>
     <input type="text" name="username" class="form-control" />
@@ -18,3 +18,4 @@
   <button type="submit" class="btn btn-default">Submit</button>
 </form>
 {% endblock %}
+
