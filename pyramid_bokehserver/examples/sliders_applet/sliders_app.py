@@ -163,13 +163,7 @@ class SlidersApp(HBox):
 # applet from a Bokeh server (for instance if you are embedding in a separate
 # Flask application), then just remove this block of code.
 
-# @view_config(name='sliders')
-
-@object_page("sin")
+@view_config(name='sliders')
 def make_sliders():
     app = SlidersApp.create()
     return app
-
-def includeme(config):
-    config.add_route('sliders', '/sliders')
-    config.add_view(make_sliders, route_name='sliders')
