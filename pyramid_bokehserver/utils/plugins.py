@@ -10,14 +10,8 @@ from __future__ import absolute_import
 
 import uuid
 
-from pyramid.httpexceptions import HTTPConflict
-from pyramid.renderers import render_to_response
-
 from bokeh.exceptions import DataIntegrityException
 from bokeh.resources import Resources
-
-from ..serverbb import init_bokeh
-from ..views.main import _makedoc
 
 def object_page(prefix):
     """ Decorator for a function which turns an object into a web page
@@ -38,6 +32,13 @@ def object_page(prefix):
     """
     def decorator(func):
         def wrapper(context, request):
+            # import at this scope so we can move this into bokeh eventually
+            from pyramid_bokehserver.serverbb import init_bokeh
+            from pyramid_bokehserver.views.main import _makedoc
+
+            from pyramid.httpexceptions import HTTPConflict
+            from pyramid.renderers import render_to_response
+
             ## setup the randomly titled document
             docname = prefix + str(uuid.uuid4())
             bokehuser = request.current_user()
