@@ -52,12 +52,8 @@ class DocumentContext(object):
         doc = self.request.current_document()
         if doc is None:
             return []
-        rw_users = getattr(doc, 'rw_users', None)
-        r_users = getattr(doc, 'r_users', None)
-        if rw_users is None:
-            rw_users = Authenticated
-        if r_users is None:
-            r_users = Everyone
+        rw_users = getattr(doc, 'rw_users', Authenticated)
+        r_users = getattr(doc, 'r_users', Everyone)
         return [
             (Allow, rw_users, 'edit'),
             (Allow, r_users, 'view'),
