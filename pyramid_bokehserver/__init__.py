@@ -21,10 +21,9 @@ from .zmqpub import Publisher
 
 from .server_backends import (
     InMemoryServerModelStorage,
-    MultiUserAuthentication,
     RedisServerModelStorage,
     ShelveServerModelStorage,
-    SingleUserAuthentication,
+    BokehAuthenticationPolicy,
 )
 from .serverbb import (
     InMemoryBackboneStorage,
@@ -75,10 +74,12 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
         bbstorage = ShelveBackboneStorage()
         servermodel_storage = ShelveServerModelStorage()
 
-    if not settings.multi_user:
-        authentication = SingleUserAuthentication()
+    if settings.multi_user:
+        authentication = BokehAuthenticationPolicy()
     else:
-        authentication = MultiUserAuthentication()
+        authentication = BokehAuthenticationPolicy(
+            default_username='defaultuser'
+            )
     url_prefix = settings.url_prefix
     publisher = Publisher(settings.ctx, settings.pub_zmqaddr, Queue())
 
@@ -125,7 +126,7 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     config.set_root_factory(Root)
 
     # set up security policies
-    config.set_authentication_policy(SessionAuthenticationPolicy())
+    config.set_authentication_policy(authentication)
     config.set_authorization_policy(ACLAuthorizationPolicy())
 
     # return a WSGI application
