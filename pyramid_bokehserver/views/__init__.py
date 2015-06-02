@@ -12,15 +12,16 @@ def notfound(request):
 
 def includeme(config):
     # app routes
+    documentcontext = config.registry.documentcontext
     config.add_route(
         'bokeh.gc',
         '/bokeh/bb/{docid}/gc',
-        factory=DocumentContext
+        factory=documentcontext
         )
     config.add_route(
         'bokeh.bulk_upsert',
         '/bokeh/bb/{docid}/bulkupsert',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.create',
@@ -29,17 +30,17 @@ def includeme(config):
     config.add_route(
         'bokeh.bulkget_wo_typename',
         '/bokeh/bb/{docid}/',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.bulkget_w_typename',
         '/bokeh/bb/{docid}/{typename}/',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.handle_model',
         '/bokeh/bb/{docid}/{typename}/{id}/',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.login', '/bokeh/login')
@@ -52,7 +53,7 @@ def includeme(config):
     config.add_route(
         'bokeh.publish',
         '/bokeh/{docid}/publish',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.root', '/')
@@ -65,19 +66,19 @@ def includeme(config):
     config.add_route(
         'bokeh.doc',
         '/bokeh/doc/{docid}/',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.getdocapikey',
         '/bokeh/getdocapikey/{docid}',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.userinfo', '/bokeh/userinfo/')
     config.add_route(
         'bokeh.info',
         '/bokeh/bokehinfo/{docid}/',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.showdoc', '/bokeh/doc/{title}/show')
@@ -89,12 +90,12 @@ def includeme(config):
     config.add_route(
         'bokeh.objinfo',
         '/bokeh/objinfo/{docid}/{objid}',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.showobj',
         '/bokeh/doc/{docid}/{objid}',
-        factory=DocumentContext,
+        factory=documentcontext,
         )
     config.add_route(
         'bokeh.wsurl', '/bokeh/wsurl/')

@@ -128,6 +128,7 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     config.registry.authorization = authorization
     config.registry.bokehjsdir = bokeh_settings.bokehjsdir()
     config.registry.bokehjssrcdir = bokeh_settings.bokehjssrcdir()
+    config.registry.documentcontext = DocumentContext
 
     # add a ``request.current_user()`` API
     config.add_request_method(current_user)
