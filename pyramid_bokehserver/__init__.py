@@ -40,7 +40,7 @@ if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
     sys.exit(1)
 
 
-class Root(object):
+class RootContext(object):
     def __init__(self, request):
         self.request = request
     def __acl__(self):
@@ -122,7 +122,7 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     config.include('.views')
 
     # set up default declarative security context
-    config.set_root_factory(Root)
+    config.set_root_factory(RootContext)
 
     # set up security policies
     config.set_authentication_policy(SessionAuthenticationPolicy())
