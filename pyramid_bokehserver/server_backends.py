@@ -375,8 +375,7 @@ class MultiUserAuthentication(AbstractAuthentication):
 
     def logout(self, request):
         headers = forget(request)
-        def _logout(request, response):
-            for k, v in headers.items():
-                response[k] = v
-        return HTTPFound(location=request.route_url('bokeh.index'))
-        request.add_response_callback(_logout)
+        return HTTPFound(
+            location=request.route_url('bokeh.index'),
+            headers=headers
+            )
