@@ -38,14 +38,41 @@ if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
     sys.exit(1)
 
 
-class Root(object):
+class RootContext(object):
     def __init__(self, request):
         self.request = request
     def __acl__(self):
         return [(Allow, Authenticated, 'edit'), (Allow, Everyone, 'view')]
 
+class DocumentContext(object):
+    def __init__(self, request):
+        self.request = request
+
+    def __acl__(self):
+        doc = self.request.current_document()
+        if doc is None:
+            return []
+        rw_users = getattr(doc, 'rw_users', None)
+        r_users = getattr(doc, 'r_users', None)
+        if rw_users is None:
+            rw_users = Authenticated
+        if r_users is None:
+            r_users = Everyone
+        return [
+            (Allow, rw_users, 'edit'),
+            (Allow, r_users, 'view'),
+            ]
+
+
 def current_user(request):
     return request.registry.authentication.current_user(request)
+
+def current_document(request):
+    docid = request.matchdict.get('docid', None)
+    if docid is None:
+        return None
+    doc = request.registry.backbone_storage.get_document(docid)
+    return doc
 
 def getapp(settings): # settings should be a bokehserver.settings.Settings
     """ This function returns a Pyramid WSGI application representing the Bokeh
@@ -108,6 +135,8 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
 
     # add a ``request.current_user()`` API
     config.add_request_method(current_user)
+    # add a ``request.current_document()`` API
+    config.add_request_method(current_document)
 
     # configure a session factory for request.session access and
     # SessionAuthenticationPolicy usage
@@ -124,7 +153,7 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     config.include('.views')
 
     # set up default declarative security context
-    config.set_root_factory(Root)
+    config.set_root_factory(RootContext)
 
     # set up view-time security policies
     config.set_authentication_policy(authentication)

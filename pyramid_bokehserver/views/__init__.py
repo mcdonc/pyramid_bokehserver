@@ -5,23 +5,42 @@ from pyramid.httpexceptions import HTTPNotFound
 
 from bokeh.settings import settings as bokeh_settings
 
+from .. import DocumentContext
+
 def notfound(request):
     return HTTPNotFound()
 
 def includeme(config):
     # app routes
     config.add_route(
-        'bokeh.gc', '/bokeh/bb/{docid}/gc')
+        'bokeh.gc',
+        '/bokeh/bb/{docid}/gc',
+        factory=DocumentContext
+        )
     config.add_route(
-        'bokeh.bulk_upsert', '/bokeh/bb/{docid}/bulkupsert')
+        'bokeh.bulk_upsert',
+        '/bokeh/bb/{docid}/bulkupsert',
+        factory=DocumentContext,
+        )
     config.add_route(
-        'bokeh.create', '/bokeh/bb/{docid}/{typename}/')
+        'bokeh.create',
+        '/bokeh/bb/{docid}/{typename}/',
+        )
     config.add_route(
-        'bokeh.bulkget_wo_typename', '/bokeh/bb/{docid}/')
+        'bokeh.bulkget_wo_typename',
+        '/bokeh/bb/{docid}/',
+        factory=DocumentContext,
+        )
     config.add_route(
-        'bokeh.bulkget_w_typename','/bokeh/bb/{docid}/{typename}/')
+        'bokeh.bulkget_w_typename',
+        '/bokeh/bb/{docid}/{typename}/',
+        factory=DocumentContext,
+        )
     config.add_route(
-        'bokeh.handle_model', '/bokeh/bb/{docid}/{typename}/{id}/')
+        'bokeh.handle_model',
+        '/bokeh/bb/{docid}/{typename}/{id}/',
+        factory=DocumentContext,
+        )
     config.add_route(
         'bokeh.login', '/bokeh/login')
     config.add_route(
@@ -31,7 +50,10 @@ def includeme(config):
     config.add_route(
         'bokeh.logout', '/bokeh/logout')
     config.add_route(
-        'bokeh.publish', '/bokeh/{docid}/publish')
+        'bokeh.publish',
+        '/bokeh/{docid}/publish',
+        factory=DocumentContext,
+        )
     config.add_route(
         'bokeh.root', '/')
     config.add_route(
@@ -41,13 +63,22 @@ def includeme(config):
     config.add_route(
         'bokeh.docs', '/bokeh/doc/')
     config.add_route(
-        'bokeh.doc', '/bokeh/doc/{docid}/')
+        'bokeh.doc',
+        '/bokeh/doc/{docid}/',
+        factory=DocumentContext,
+        )
     config.add_route(
-        'bokeh.getdocapikey', '/bokeh/getdocapikey/{docid}')
+        'bokeh.getdocapikey',
+        '/bokeh/getdocapikey/{docid}',
+        factory=DocumentContext,
+        )
     config.add_route(
         'bokeh.userinfo', '/bokeh/userinfo/')
     config.add_route(
-        'bokeh.info', '/bokeh/bokehinfo/{docid}/')
+        'bokeh.info',
+        '/bokeh/bokehinfo/{docid}/',
+        factory=DocumentContext,
+        )
     config.add_route(
         'bokeh.showdoc', '/bokeh/doc/{title}/show')
     config.add_route(
@@ -56,9 +87,15 @@ def includeme(config):
         'bokeh.autoloadjs', '/bokeh/autoload.js/{elementid}'
         )
     config.add_route(
-        'bokeh.objinfo', '/bokeh/objinfo/{docid}/{objid}')
+        'bokeh.objinfo',
+        '/bokeh/objinfo/{docid}/{objid}',
+        factory=DocumentContext,
+        )
     config.add_route(
-        'bokeh.showobj', '/bokeh/doc/{docid}/{objid}')
+        'bokeh.showobj',
+        '/bokeh/doc/{docid}/{objid}',
+        factory=DocumentContext,
+        )
     config.add_route(
         'bokeh.wsurl', '/bokeh/wsurl/')
     config.add_route(

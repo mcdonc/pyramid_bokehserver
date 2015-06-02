@@ -74,12 +74,17 @@ def logout(request):
     '''
     return request.registry.authentication.logout(request)
 
-@view_config(route_name='bokeh.publish', request_method='POST', renderer='json')
+@view_config(
+    route_name='bokeh.publish',
+    request_method='POST',
+    renderer='json',
+    permission='edit',
+    )
 def publish(request):
     docid = request.matchdict['docid']
     doc = docs.Doc.load(request.registry.servermodel_storage, docid)
     if not request.registry.authorization.can_write_doc(request, docid):
-        return HTTPUnauthorized()
+        return HTTPUnauthorized() # XXX this can die when declarative security
     doc.published = True
     doc.save(request.registry.servermodel_storage)
     return dict(status='success')

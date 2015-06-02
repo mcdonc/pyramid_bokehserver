@@ -16,6 +16,7 @@ from ..models import docs
     route_name='bokeh.gc',
     request_method='POST',
     renderer='json',
+    permission='view',
     )
 def gc(request):
     docid = request.matchdict['docid']
@@ -36,6 +37,7 @@ def gc(request):
     route_name='bokeh.bulk_upsert',
     request_method='POST',
     renderer='json',
+    permission='edit',
     )
 def bulk_upsert(request):
     ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
@@ -93,6 +95,7 @@ def ws_delete(request, clientdoc, docid, models):
     route_name='bokeh.create',
     request_method='POST',
     renderer='json',
+    permission='edit',
     )
 def create(request):
     ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
@@ -142,6 +145,7 @@ def _bulkget(request, docid, typename=None):
 @view_config(
     route_name='bokeh.bulkget_wo_typename',
     request_method='GET',
+    permission='view',
     )
 def bulkget_without_typename(request):
     ''' Retrieve all objects for a given :class:`Document <bokeh.document.Document>`.
@@ -159,6 +163,7 @@ def bulkget_without_typename(request):
 @view_config(
     route_name='bokeh.bulkget_w_typename',
     request_method='GET',
+    permission='view',
     )
 def bulkget_with_typename(request):
     ''' Retrieve all objects of a specified typename for a
@@ -194,7 +199,8 @@ def _handle_specific_model(request):
     request_method=('GET', 'OPTIONS'),
     decorator=(
         crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
-        )
+        ),
+    permission='view',
     )
 def _handle_specific_model_get(request):
     ''' Retrieve a specific model with a given id and typename for a
@@ -216,7 +222,8 @@ def _handle_specific_model_get(request):
     request_method='PUT',
     decorator=(
         crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
-        )
+        ),
+    permission='edit',
     )
 def _handle_specific_model_put(request):
     ''' Update a specific model with a given id and typename for a
@@ -238,7 +245,8 @@ def _handle_specific_model_put(request):
     request_method='PATCH',
     decorator=(
         crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
-        )
+        ),
+    permission='edit',
     )
 def _handle_specific_model_patch(request):
     ''' Update a specific model with a given id and typename for a
@@ -260,7 +268,8 @@ def _handle_specific_model_patch(request):
     request_method='DELETE',
     decorator=(
         crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
-        )
+        ),
+    permission='edit',
     )
 def _handle_specific_model_delete(request):
     ''' Delete a specific model with a given id and typename for a

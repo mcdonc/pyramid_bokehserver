@@ -155,6 +155,7 @@ def deletedoc(request):
 @view_config(
     route_name='bokeh.getdocapikey',
     renderer='json',
+    permission='view',
     )
 def get_doc_api_key(request):
     docid = request.matchdict['docid']
@@ -183,12 +184,15 @@ def get_user(request):
     route_name='bokeh.info',
     request_method=('GET', 'OPTIONS'),
     renderer='json',
-    decorator=crossdomain(origin='*', headers=None)
+    decorator=crossdomain(origin='*', headers=None),
+    permission='view',
     )
 @view_config(
     route_name='bokeh.doc',
     request_method=('GET', 'OPTIONS'),
-    decorator=crossdomain(origin='*', headers=None)
+    renderer='json',
+    decorator=crossdomain(origin='*', headers=None),
+    permission='view',
     )
 def get_bokeh_info(request):
     docid = request.matchdict['docid']
@@ -247,8 +251,8 @@ def show_doc_by_title(request):
 @view_config(
     route_name='bokeh.docs',
     request_method=('GET', 'OPTIONS'),
+    decorator=crossdomain(origin='*', headers=None),
     permission='edit',
-    decorator=crossdomain(origin='*', headers=None)
     )
 def doc_by_title(request):
     json_body = request.json_body
@@ -303,7 +307,8 @@ def autoload_js(request):
 @view_config(
     route_name='bokeh.objinfo',
     request_method=('GET', 'OPTIONS'),
-    decorator=crossdomain(origin='*', headers=None)
+    decorator=crossdomain(origin='*', headers=None),
+    permission='view',
     )
 def get_bokeh_info_one_object(request):
     docid = request.matchdict['docid']
@@ -334,6 +339,7 @@ def get_bokeh_info_one_object(request):
     route_name='bokeh.showobj',
     request_method='GET',
     renderer='pyramid_bokehserver:template/oneobj.html',
+    permission='view',
     )
 def show_obj(request):
     docid = request.matchdict['docid']
