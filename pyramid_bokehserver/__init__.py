@@ -6,6 +6,8 @@ from six.moves.queue import Queue
 
 from bokeh.settings import settings as bokeh_settings
 
+from pyramid.authentication import SessionAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 from pyramid.security import (
@@ -121,6 +123,10 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
 
     # set up default declarative security context
     config.set_root_factory(Root)
+
+    # set up security policies
+    config.set_authentication_policy(SessionAuthenticationPolicy())
+    config.set_authorization_policy(ACLAuthorizationPolicy())
 
     # return a WSGI application
     return config.make_wsgi_app()

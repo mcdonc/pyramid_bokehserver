@@ -171,9 +171,5 @@ def make_sliders():
     return app
 
 def includeme(config):
-    from pyramid.authentication import SessionAuthenticationPolicy
-    from pyramid.authorization import ACLAuthorizationPolicy
-    config.set_authorization_policy(ACLAuthorizationPolicy())
-    config.set_authentication_policy(SessionAuthenticationPolicy())
     config.add_route('sliders', '/sliders')
     config.add_view(make_sliders, route_name='sliders')
