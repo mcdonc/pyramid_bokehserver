@@ -1,0 +1,22 @@
+Goals:
+
+- Make it more convenient to deploy only a single process representing
+  both the bokeh server and a user's application.
+
+- Make it more convenient to override existing views (such as login / logout /
+  registration views)
+
+- Make it more convenient to reuse the security framework provided by
+  bokeh server
+
+- Split authentication and authorization into two separate subsystems for
+  convenience.  Many onsite customer deployments will often need to override
+  one or the other, but perhaps not both.
+
+New features that come along for the ride:
+
+- Make it possible to run more than one bokeh server app in a single
+  process (e.g. with paste.urlmap prefix middleware).
+
+- Side-effect-less imports.
+
