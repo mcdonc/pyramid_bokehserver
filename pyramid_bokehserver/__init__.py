@@ -8,6 +8,11 @@ from bokeh.settings import settings as bokeh_settings
 
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
+from pyramid.security import (
+    Allow,
+    Everyone,
+    Authenticated,
+    )
 
 from . import websocket
 from .zmqpub import Publisher
@@ -31,6 +36,13 @@ DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'memory')
 if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
     print("Unrecognized default backend: '%s'. Accepted values are: 'redis', 'shelve', 'memory'" % DEFAULT_BACKEND)
     sys.exit(1)
+
+
+class Root(object):
+    def __init__(self, request):
+        self.request = request
+    def __acl__(self):
+        return [(Allow, Authenticated, 'edit'), (Allow, Everyone, 'view')]
 
 def current_user(request):
     return request.registry.authentication.current_user(request)
@@ -93,7 +105,8 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     # add a ``request.current_user()`` API
     config.add_request_method(current_user)
 
-    # configure a session factory for request.session access
+    # configure a session factory for request.session access and
+    # SessionAuthenticationPolicy usage
     session_factory = SignedCookieSessionFactory(settings.secret_key)
     config.set_session_factory(session_factory)
 
@@ -105,6 +118,9 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
 
     # register routes and default views
     config.include('.views')
+
+    # set up default declarative security context
+    config.set_root_factory(Root)
 
     # return a WSGI application
     return config.make_wsgi_app()

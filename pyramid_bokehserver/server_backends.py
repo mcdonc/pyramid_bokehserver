@@ -9,6 +9,10 @@ import uuid
 
 from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound
+from pyramid.security import (
+    remember,
+    forget,
+    )
 
 from bokeh.exceptions import DataIntegrityException
 from bokeh.util.string import encode_utf8, decode_utf8
@@ -111,13 +115,11 @@ class AbstractAuthentication(object):
         raise NotImplementedError
     def login(self, request, username):
         """login the user, sets whatever request information is necessary
-        (usually, session['username'] = username)
         """
         raise NotImplementedError
 
     def logout(self, request):
         """logs out the user, sets whatever request information is necessary
-        usually, session.pop('username')
         """
         raise NotImplementedError
 
@@ -241,7 +243,11 @@ class MultiUserAuthentication(AbstractAuthentication):
         return convenience.can_read_from_request(doc, request, userobj)
 
     def login(self, request, username):
-        request.session['username'] = username
+        headers = remember(request, username)
+        def _login(request, response):
+            for k, v in headers.items():
+                response.headers[k] = v
+        request.add_response_callback(_login)
 
     def print_connection_info(self, bokehuser):
         logger.info("connect using the following")
@@ -252,7 +258,7 @@ class MultiUserAuthentication(AbstractAuthentication):
     def current_user_name(self, request):
         # users can be authenticated by logging in (setting the session)
         # or by setting fields in the http header (api keys, etc..)
-        username =  request.session.get('username', None)
+        username = request.authenticated_userid
         if username:
             return username
         else:
@@ -368,5 +374,9 @@ class MultiUserAuthentication(AbstractAuthentication):
         return HTTPFound(location=request.route_url('bokeh.index'))
 
     def logout(self, request):
-        request.session.pop('username', None)
+        headers = forget(request)
+        def _logout(request, response):
+            for k, v in headers.items():
+                response[k] = v
         return HTTPFound(location=request.route_url('bokeh.index'))
+        request.add_response_callback(_logout)
