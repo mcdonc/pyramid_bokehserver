@@ -329,7 +329,7 @@ class BokehServerTransaction(object):
         self.server_docobj = server_docobj
         self.temporary_docid = temporary_docid
         self.request = request
-        can_write = request.registry.authentication.can_write_doc(
+        can_write = request.registry.authorization.can_write_doc(
             request,
             self.server_docobj,
             userobj=self.server_userobj,
@@ -337,7 +337,7 @@ class BokehServerTransaction(object):
         if can_write:
             can_read = True
         else:
-            can_read = request.registry.authentication.can_read_doc(
+            can_read = request.registry.authorization.can_read_doc(
                 request,
                 self.server_docobj,
                 userobj=self.server_userobj)

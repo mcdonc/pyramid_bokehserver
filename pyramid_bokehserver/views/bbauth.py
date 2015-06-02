@@ -78,7 +78,7 @@ def logout(request):
 def publish(request):
     docid = request.matchdict['docid']
     doc = docs.Doc.load(request.registry.servermodel_storage, docid)
-    if not request.registry.authentication.can_write_doc(request, docid):
+    if not request.registry.authorization.can_write_doc(request, docid):
         return HTTPUnauthorized()
     doc.published = True
     doc.save(request.registry.servermodel_storage)

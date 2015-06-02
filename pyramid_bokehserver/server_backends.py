@@ -14,6 +14,7 @@ from pyramid.security import (
     forget,
     )
 from pyramid.authentication import SessionAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
 
 from bokeh.exceptions import DataIntegrityException
 from bokeh.util.string import encode_utf8, decode_utf8
@@ -206,38 +207,6 @@ class BokehAuthenticationPolicy(
             return True
         return False
 
-    def can_write_doc(
-        self, request, doc_or_docid, temporary_docid=None, userobj=None):
-        if userobj is None and self._is_defaultuser():
-            return True
-        if not isinstance(doc_or_docid, docs.Doc):
-            doc = docs.Doc.load(
-                request.registry.servermodel_storage,
-                doc_or_docid
-                )
-        else:
-            doc = doc_or_docid
-        if userobj is None:
-            userobj = self.current_user(request)
-        return convenience.can_write_from_request(
-            doc, request, userobj,
-            temporary_docid=temporary_docid
-            )
-
-    def can_read_doc(
-        self, request, doc_or_docid, temporary_docid=None, userobj=None):
-        if userobj is None and self._is_defaultuser():
-            return True
-        if not isinstance(doc_or_docid, docs.Doc):
-            doc = docs.Doc.load(
-                request.registry.servermodel_storage, doc_or_docid
-                )
-        else:
-            doc = doc_or_docid
-        if userobj is None:
-            userobj = self.current_user(request)
-        return convenience.can_read_from_request(doc, request, userobj)
-
     def current_user_name(self, request):
         return request.authenticated_userid
 
@@ -388,7 +357,7 @@ class BokehAuthenticationPolicy(
         return HTTPFound(location=request.route_url('bokeh.index'))
         request.add_response_callback(_logout)
 
-    # pyramid IAuthenticationPolicy methods hereafter
+    # pyramid IAuthenticationPolicy methods
     def unauthenticated_userid(self, request):
         # users can be authenticated by logging in (setting the session)
         # or by setting fields in the http header (api keys, etc..)
@@ -396,3 +365,38 @@ class BokehAuthenticationPolicy(
         if bokehuser:
             return bokehuser.username
         return request.session.get(self.userid_key, self.default_username)
+
+class BokehAuthorizationPolicy(ACLAuthorizationPolicy):
+    def can_write_doc(
+        self, request, doc_or_docid, temporary_docid=None, userobj=None
+        ):
+        if userobj is None and self._is_defaultuser():
+            return True
+        if not isinstance(doc_or_docid, docs.Doc):
+            doc = docs.Doc.load(
+                request.registry.servermodel_storage,
+                doc_or_docid
+                )
+        else:
+            doc = doc_or_docid
+        if userobj is None:
+            userobj = self.current_user(request)
+        return convenience.can_write_from_request(
+            doc, request, userobj,
+            temporary_docid=temporary_docid
+            )
+
+    def can_read_doc(
+        self, request, doc_or_docid, temporary_docid=None, userobj=None
+        ):
+        if userobj is None and self._is_defaultuser():
+            return True
+        if not isinstance(doc_or_docid, docs.Doc):
+            doc = docs.Doc.load(
+                request.registry.servermodel_storage, doc_or_docid
+                )
+        else:
+            doc = doc_or_docid
+        if userobj is None:
+            userobj = self.current_user(request)
+        return convenience.can_read_from_request(doc, request, userobj)

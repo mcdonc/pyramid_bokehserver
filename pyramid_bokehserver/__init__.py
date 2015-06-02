@@ -6,8 +6,6 @@ from six.moves.queue import Queue
 
 from bokeh.settings import settings as bokeh_settings
 
-from pyramid.authentication import SessionAuthenticationPolicy
-from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 from pyramid.security import (
@@ -24,6 +22,7 @@ from .server_backends import (
     RedisServerModelStorage,
     ShelveServerModelStorage,
     BokehAuthenticationPolicy,
+    BokehAuthorizationPolicy,
 )
 from .serverbb import (
     InMemoryBackboneStorage,
@@ -80,6 +79,7 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
         authentication = BokehAuthenticationPolicy(
             default_username='defaultuser'
             )
+    authorization = BokehAuthorizationPolicy()
     url_prefix = settings.url_prefix
     publisher = Publisher(settings.ctx, settings.pub_zmqaddr, Queue())
 
@@ -102,6 +102,7 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     config.registry.servermodel_storage = servermodel_storage
     config.registry.backbone_storage = bbstorage
     config.registry.authentication = authentication
+    config.registry.authorization = authorization
     config.registry.bokehjsdir = bokeh_settings.bokehjsdir()
     config.registry.bokehjssrcdir = bokeh_settings.bokehjssrcdir()
 
@@ -125,9 +126,9 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     # set up default declarative security context
     config.set_root_factory(Root)
 
-    # set up security policies
+    # set up view-time security policies
     config.set_authentication_policy(authentication)
-    config.set_authorization_policy(ACLAuthorizationPolicy())
+    config.set_authorization_policy(authorization)
 
     # return a WSGI application
     return config.make_wsgi_app()
