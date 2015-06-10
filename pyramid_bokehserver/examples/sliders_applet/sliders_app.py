@@ -164,6 +164,7 @@ class SlidersApp(HBox):
 # Flask application), then just remove this block of code.
 
 @view_config(name='sliders')
+@object_page('sin')
 def make_sliders():
     app = SlidersApp.create()
     return app
