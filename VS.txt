@@ -1,0 +1,338 @@
+Bokeh Server As a Platform
+===========================
+
+There are currently two main ways that people tend to use
+``bokeh.server``: via a Bokeh Server "script" and via application
+extension.
+
+Via A Script
+------------
+
+In this mode, users write a Python file that contains a set of Flask
+views (often using the ``@object_page`` decorator for convenience,
+which is a decorator that wraps a Bokeh domain object and turns it
+into something that can be used as a view).  The server machinery
+imports the file, which has the side effect of monkeypatching the
+global Flask configuration, adding one or more views.  An example from
+the ``sliders_app`` in the Bokeh ``examples`` dir::
+
+    from bokeh.server.app import bokeh_app
+    from bokeh.server.utils.plugins import object_page
+
+    # The following code adds a "/bokeh/sliders/" url to the bokeh-server. This
+    # URL will render this sine wave sliders app. If you don't want to serve 
+    # this applet from a Bokeh server (for instance if you are embedding in a 
+    # separate Flask application), then just remove this block of code.
+    @bokeh_app.route("/bokeh/sliders/")
+    @object_page("sin")
+    def make_sliders():
+        app = SlidersApp.create() # an HBox subclass
+        return app
+
+This style of usage is good for quick one-off demonstrations, such as
+the Bokeh gallery examples.
+
+Via Application Extension
+-------------------------
+
+There are customers who need to embed interactive bokeh graphs and
+plots in their own applications.  I'll refer to this class of
+``bokeh.users`` as "extenders."  Extenders are people whom, instead of
+using the ``bokeh_server`` script, find their customization needs
+often require more control.  Instead of using the ``bokeh_server``
+script with command-line options specifying a script, they run their
+own Python script which reuses the ``bokeh.server`` configuration.  An
+example from Sarah Bird's PyCon tutorial::
+
+  from configure import configure_flask, TornadoApplication
+  from bokeh.server.app import app
+  from bokeh.server.configure import register_blueprint
+  from bokeh.server.settings import settings as server_settings
+
+  configure_flask(config_file='config.py')
+  register_blueprint()
+
+  app.secret_key = server_settings.secret_key
+  tornado_app = TornadoApplication(app, debug=server_settings.debug)
+  tornado_app.start_threads()
+
+They then point either the bare Tornado server or Gunicorn with
+Tornado workers at ``tornado_app`` to run the server application.
+
+Often such users will have a *separate* application representing their
+domain web logic.  They'll use HTML and JavaScript to embed plots
+which communicate with the Bokeh Server over HTTP and WebSocket
+connections.  Two processes will be running in such configurations:
+the custom domain application, and a Bokeh Server which needs to be
+configured separately with custom data.
+
+Problems
+--------
+
+- While people can use their own web app instance to serve their
+  domain pages, customers are often very naive when it comes to WSGI
+  app deployment, and needing to deploy two applications instead of
+  one adds to their cognitive load.  It would be useful to be able to
+  suggest to an otherwise just-starting-out customer that they extend
+  an existing already-deployable application than tell them they need
+  to create and host a separate application along with bokeh_server.
+  This would be particularly true of customers who might use
+  contiuum.io as consultants to build their domain application also,
+  as continuum.io people would naturally probably tend to gratvitate
+  towards this solution anyway, as evidenced by Fabio's recent try to
+  do so.
+
+- I tried to implement Travis' CARP idea using ``repoze.who``
+  middleware but it turned out that, because of websockets and other
+  places that use imperative security, we would need to cause the
+  server code to actually import an API from ``repoze.who``.
+  ``repoze.who`` is most useful when it has almost no interaction with
+  the application it's fronting.  It API is complex and it has
+  shortcomings.  (FWIW, Pyramid's security subsystem is effectively a
+  simpler reimplementation of some of its ideas).
+
+- While it's not entirely hardcoded, it's not easy to override or even
+  reuse the current ``bokeh.server`` authentication/authorization
+  machinery within an application which is an extension to
+  ``bokeh.server``.  This is due somewhat to a lack of docs, but is
+  also suboptimal because authentication and authorization are
+  conflated instead of being overrideable separately, and people tend
+  to have very specific requirements for one or the other.
+
+- It's unclear how to tell folks exactly what to do when they'd like
+  to create "extensions" to Bokeh Server which are themselves not
+  "just an application", but instead extend the platform.  Eg.: scaly.
+  It requires Bokeh Server, but it's not "just an application", it's a
+  platform meant to be reused by other people too.
+
+- Security is currently handled almost completely imperatively.  It's
+  not hard to get wrong as a result.  A more declarative security
+  model may help folks extend the platform more easily.
+
+Nits
+----
+
+- I have a strong personal preference towards nonglobal configuration.
+  Currently, due to globals, it would be impossible to run more than
+  one bokeh server application in the same process, but doing so is a
+  configuration that might be useful in some circumstances (using
+  something like ``paste.urlmap`` to host two separate applications in
+  the same process by prefixing the URL with two different paths).  A
+  too-long diatribe related to this (but not limited to this) exists
+  at
+  http://docs.pylonsproject.org/projects/pyramid/en/1.5-branch/designdefense.html#microframeworks-have-smaller-hello-world-programs
+
+- Testing of applications which rely on import time side effects to
+  change global state often must be completely done via integration
+  and functional testing.  Applications which do not rely on these
+  imports do not, and their test suites can often be done as plain
+  unit tests, which tend to run much more quickly.
+
+My Recommendations
+==================
+
+I believe a new iteration of Bokeh Server should represent a platform
+rather than bespoke application that has a single purpose.  The
+platform should be extensible arbitrarily.  It should be possible to
+reuse views and models from existing Bokeh Server code, and it should
+be possible to override them arbitrarily.  It should be possible to
+extend the platform by adding new views that represent domain
+application pages.  It should be possible to reuse and override
+security policies.  It should be possible to hide complexity by
+layering one platform on top of another (e.g. by layering Scaly on top
+of Bokeh Server), such that it is potentially unnecessary for users of
+higher layers to know about the lower ones.
+
+I considered the problems above, and, for the sake of time,
+implemented a Pyramid version of Bokeh Server in order to demonstrate
+how I might think about solving them. This was the fastest way for me
+to demonstrate what I think the outcome should look like.  The result
+currently lives at https://github.com/mcdonc/pyramid_bokehserver .
+This version of Bokeh Server runs without issue.  The master branch is
+a straight port of the current bokeh server as-is.  The one
+improvement to the current Flask bokeh.server codebase (IMO) is that
+there are no more globals; everything is accessed as attributes of the
+request object rather than being imported.  This makes it possible to
+use more than one instance of a Bokeh Server in a single process.
+This wasn't a major goal, just something that is possible and useful.
+
+I used Pyramid to demonstrate some of the more patformy ideas instead
+of Flask because seemed a lot harder (for me, at least) to turn Flask
+into something like Pyramid that already had these features than vice
+versa.  For a more generic description of why Pyramid may be a more
+reasonable choice if providing platform is a major goal, please see
+http://docs.pylonsproject.org/projects/pyramid/en/1.5-branch/designdefense.html#pyramid-applications-are-extensible-i-don-t-believe-in-application-extensibility
+and
+http://docs.pylonsproject.org/projects/pyramid/en/1.5-branch/narr/extending.html
+.  But in a nutshell, Pyramid's support for ``config.include`` is
+similar (but more comprehensive) than something like Flask bueprints
+for the same purpose.  Reasonable people will probably disagree, but
+we should probably compare scifi code samples to see what the
+tradeoffs are.  There is very little scifi in the Pyramid examples I
+show below, all the machinery already exists.
+
+Security Work
+-------------
+
+Branches exist in the ``pyramid_bokehserver`` repository which
+describe, in an iterative one-feature-at-a-time fashion, changes I
+believe should be made to security, which are more "platformy".
+
+The first branch, ``feature.decsec1`` removes some of the decorators
+that were previously required to handle authentication and
+authorization, and replaces some imperative security code with
+declarative variants, and more abstract authorization concepts that
+are appropriate for a platform instead of an application.  So instead
+of::
+
+   @bokeh_app.route('/some/pattern')
+   @login_required
+   def aview():
+       ...
+
+Bokeh Server developers and extenders would now do this::
+
+   @view_config(route_name='some-route-name', permission='edit')
+   def aview(request):
+       ...
+
+The ``permission='edit'`` implies that the Pyramid authorization
+policy should ensure that the user who is attempting to execute the
+view directly (or via a group) possess the edit "permission".  A
+permission is just a string.  An ACL is applied to every route in the
+system.  Such an ACL might look like this::
+
+  [(Allow, 'group:editors', 'edit'), (Allow, Authenticated, 'view')]
+
+``Allow`` and ``Authenticated`` in this cicrumstance are objects
+imported from Pyramid.  Machinery inside Pyramid associates the route
+with this ACL, and when a view related to the route is looked up,
+ensures that the view cannot be executed by someone who does not
+possess this permission.  The details are more complex, but that's the
+basics.
+
+The ACLs associated with the routes can be changed by extenders
+arbitrarily, and can represent a customer's configuration without the
+need for any code change.  This is the benefit.  Typically the code
+needed to change the security policy of a Bokeh Server application
+will only be about 5 lines.  View code also gets simpler, because
+nothing needs to be imported, and authentication code is centralized
+and shareable between the domain application and any platform layers
+which make up the application.
+
+The ``feature.decsec2`` branch takes it a bit further than
+``feature.decsec1`` by implementing the somewhat-pluggable security
+code in Bokeh Server as a Pyramid authentication policy.  It breaks
+authentication and authorization into separate, uniquely overrideable
+subsystems.  The benefit of this is that one can be replaced without
+needing to change the other, if such customization is required.  It
+also replaces a decorator named ``handle_auth_error`` with a Pyramid
+"exception view", centralizing this configuration.
+
+The ``feature.decsec3`` branch demonstrates changing the ACL on a
+per-view basis.  Views that involve Documents have one ACL policy,
+while all other views have a different ACL policy.  This makes it
+possible to remove some imperative security checks from the view code
+itself.
+
+Initialization
+--------------
+
+While we'd like to keep the convenience of the ``bokeh_server``
+script, most of the requests you've seemed to be getting revolve
+around applications more in the "extender" realm (such as HH, which
+needed LDAP, and TJ's and Fabio's applications, which both required
+custom views).  Here's a science fiction example of using
+``pyramid_bokehserver`` to implement LDAP authentication as well as a
+single custom view::
+
+    from pyramid.config import Configurator
+    from pyramid.view import view_config
+    from pyramid.response import Response
+    from pyramid_ldap import (
+        get_ldap_connector,
+        groupfinder,
+        )
+
+    from pyramid.authentication import SessionAuthenticationPolicy
+
+    from pyramid_bokehserver import runserver
+
+    @view_config(name='foo')
+    def foo(request):
+        return Response('foo')
+
+    if __name__ == '__main__':
+        secret = 'soseekrit'
+        settings = {'start_redis':True, 'secret':secret}
+        config = Configurator(settings=settings)
+        config.set_authentication_policy(
+            SessionAuthenticationPolicy(secret,
+                                        callback=groupfinder)
+            )
+        config.include('pyramid_ldap')
+        config.ldap_setup(
+            'ldap://ldap.example.com',
+            bind='CN=ldap user,CN=Users,DC=example,DC=com',
+            passwd='ld@pu5er'
+            )
+
+        config.ldap_set_login_query(
+            base_dn='CN=Users,DC=example,DC=com',
+            filter_tmpl='(sAMAccountName=%(login)s)',
+            scope = ldap.SCOPE_ONELEVEL,
+            )
+
+        config.ldap_set_groups_query(
+            base_dn='CN=Users,DC=example,DC=com',
+            filter_tmpl='(&(objectCategory=group)(member=%(userdn)s))',
+            scope = ldap.SCOPE_SUBTREE,
+            cache_period = 600,
+            )
+        config.include('pyramid_bokehserver')
+        config.scan('.')
+        app = config.make_wsgi_app()
+        runserver(app)
+
+Note that no code change would be required to the application, just an
+override of the authentication policy.
+
+Here's a (weak) science fiction example of what a user of Scaly would
+need to know to do:
+
+    from pyramid.config import Configurator
+    from pyramid.view import view_config
+    from pyramid.response import Response
+    from pyramid_bokehserver import runserver
+
+    @view_config(name='foo')
+    def foo(request):
+        return Response('foo')
+
+    if __name__ == '__main__':
+        settings = {}
+        config = Configurator(settings=settings)
+        config.include('scaly') # in turn, scaly includes pyramid_bokehserver
+        config.scan('.')
+        app = config.make_wsgi_app()
+        runserver(app)
+
+In this world, an extender of scaly will not need to know much about
+pyramid_bokehserver.  The Scaly implementor did, and Scaly will use
+``pyramid_bokehserver``, but the direct consumer of Scaly should not
+necessarily need to know much about it.  I realize this is a weak
+example, but it's just a demonstration of how the layering could work.
+
+There are a lot more features to explicit configuration such as
+conflict detection and resolution, custom directives
+(e.g. ``config.custom_bokeh_thing('foo')``), and the ability to provde
+non-mutating decorators for people to use in code, but I hope you get
+the idea.  I can describe these as necessary.
+
+Additional
+----------
+
+If creating a platform is a goal (and I think all signs point to it
+right now), we should come up with an alternate name than "bokeh
+server" for the result.  It should be branded separately, as it will
+almost certainly not be backwards compatible.

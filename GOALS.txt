@@ -20,3 +20,6 @@ New features that come along for the ride:
 
 - Side-effect-less imports.
 
+More:
+
+- Better docs
