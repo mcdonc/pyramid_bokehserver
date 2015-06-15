@@ -198,8 +198,11 @@ def run_server(argv=sys.argv):
         start_redis(wsgiapp.registry)
     tornado_app.start_threads()
     server = HTTPServer(tornado_app)
-    server.listen(settings.port, settings.ip)
-    ioloop.IOLoop.instance().start()
+    try:
+        server.listen(settings.port, settings.ip)
+        ioloop.IOLoop.instance().start()
+    finally:
+        tornado_app.stop_threads()
 
 class SimpleBokehTornadoApp(Application):
     def __init__(self, wsgiapp, **settings):
