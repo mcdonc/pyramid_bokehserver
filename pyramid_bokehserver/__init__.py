@@ -8,6 +8,10 @@ from bokeh.settings import settings as bokeh_settings
 
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
+from pyramid.asset import (
+    resolve_asset_spec,
+    abspath_from_asset_spec,
+    )
 from pyramid.security import (
     Allow,
     Everyone,
@@ -156,5 +160,18 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     config.set_authentication_policy(authentication)
     config.set_authorization_policy(authorization)
 
+    # add add_data_app directive
+    config.add_directive('add_data_app', add_data_app)
+
+    config.add_data_app('pyramid_bokehserver.examples:data_app')
+
     # return a WSGI application
     return config.make_wsgi_app()
+
+def add_data_app(config, path_or_spec):
+    path = abspath_from_asset_spec(path_or_spec)
+    import pdb; pdb.set_trace()
+    if os.path.exists(os.path.join(path, 'static')):
+        name = path_or_spec.replace('/', '-').replace(':', '-')
+        config.add_static_view(name, path_or_spec)
+        config.action('data app static %s' % path_or_spec, None, config.package)
