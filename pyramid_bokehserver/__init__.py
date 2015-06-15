@@ -174,3 +174,5 @@ def add_data_app(config, path_or_spec):
         name = path_or_spec.replace('/', '-').replace(':', '-')
         config.add_static_view(name, path_or_spec)
         config.action('data app static %s' % path_or_spec, None, config.package)
+    # code to set up widgets and models using imports of well-known names, etc
+    # ....
