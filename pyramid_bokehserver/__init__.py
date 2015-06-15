@@ -170,7 +170,6 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
 
 def add_data_app(config, path_or_spec):
     path = abspath_from_asset_spec(path_or_spec)
-    import pdb; pdb.set_trace()
     if os.path.exists(os.path.join(path, 'static')):
         name = path_or_spec.replace('/', '-').replace(':', '-')
         config.add_static_view(name, path_or_spec)
