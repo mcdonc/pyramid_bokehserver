@@ -22,13 +22,11 @@ from bokeh.exceptions import DataIntegrityException
 from bokeh.resources import Resources
 from bokeh.templates import AUTOLOAD
 
-from .bbauth import handle_auth_error
 from ..crossdomain import crossdomain
 from ..models import docs
 from ..models import user
 from ..serverbb import prune, BokehServerTransaction, get_temporary_docid
 from ..views import make_json
-from ..views.decorators import login_required
 
 def request_resources(request):
     """Creates resources instance based on url info from
@@ -117,7 +115,7 @@ def _makedoc(request, redisconn, u, title):
     route_name='bokeh.docs',
     request_method='POST',
     renderer='json',
-    decorator=login_required
+    permission='edit',
     )
 def makedoc(request):
     json_body = request.json_body
@@ -139,7 +137,7 @@ def makedoc(request):
     route_name='bokeh.doc',
     request_method='DELETE',
     renderer='json',
-    decorator=login_required
+    permission='edit',
     )
 def deletedoc(request):
     docid = request.matchdict['docid']
@@ -157,7 +155,7 @@ def deletedoc(request):
 @view_config(
     route_name='bokeh.getdocapikey',
     renderer='json',
-    decorator=handle_auth_error
+    permission='view',
     )
 def get_doc_api_key(request):
     docid = request.matchdict['docid']
@@ -174,7 +172,8 @@ def get_doc_api_key(request):
     route_name='bokeh.userinfo',
     request_method=('GET', 'OPTIONS'),
     renderer='json',
-    decorator=(login_required, crossdomain(origin='*', headers=None))
+    permission='edit',
+    decorator=crossdomain(origin='*', headers=None)
     )
 def get_user(request):
     bokehuser = request.current_user()
@@ -185,12 +184,15 @@ def get_user(request):
     route_name='bokeh.info',
     request_method=('GET', 'OPTIONS'),
     renderer='json',
-    decorator=(handle_auth_error, crossdomain(origin='*', headers=None))
+    decorator=crossdomain(origin='*', headers=None),
+    permission='view',
     )
 @view_config(
     route_name='bokeh.doc',
     request_method=('GET', 'OPTIONS'),
-    decorator=(handle_auth_error, crossdomain(origin='*', headers=None))
+    renderer='json',
+    decorator=crossdomain(origin='*', headers=None),
+    permission='view',
     )
 def get_bokeh_info(request):
     docid = request.matchdict['docid']
@@ -226,7 +228,8 @@ def _get_bokeh_info(request, docid):
 @view_config(
     route_name='bokeh.showdoc',
     request_method=('GET', 'OPTIONS'),
-    decorator=(login_required, crossdomain(origin='*', headers=None))
+    permission='edit',
+    decorator=crossdomain(origin='*', headers=None)
     )
 def show_doc_by_title(request):
     title = request.matchdict['title']
@@ -248,7 +251,8 @@ def show_doc_by_title(request):
 @view_config(
     route_name='bokeh.docs',
     request_method=('GET', 'OPTIONS'),
-    decorator=(login_required, crossdomain(origin='*', headers=None))
+    decorator=crossdomain(origin='*', headers=None),
+    permission='edit',
     )
 def doc_by_title(request):
     json_body = request.json_body
@@ -303,7 +307,8 @@ def autoload_js(request):
 @view_config(
     route_name='bokeh.objinfo',
     request_method=('GET', 'OPTIONS'),
-    decorator=(handle_auth_error, crossdomain(origin='*', headers=None))
+    decorator=crossdomain(origin='*', headers=None),
+    permission='view',
     )
 def get_bokeh_info_one_object(request):
     docid = request.matchdict['docid']
@@ -334,6 +339,7 @@ def get_bokeh_info_one_object(request):
     route_name='bokeh.showobj',
     request_method='GET',
     renderer='pyramid_bokehserver:template/oneobj.html',
+    permission='view',
     )
 def show_obj(request):
     docid = request.matchdict['docid']

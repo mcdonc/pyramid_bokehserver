@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import logging
-from functools import wraps
 
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.view import view_config
@@ -11,18 +10,13 @@ from bokeh.exceptions import AuthenticationException
 
 logger = logging.getLogger(__name__)
 
-def handle_auth_error(func):
-    """Decorator wraps a function and watches for AuthenticationException
+@view_config(context=AuthenticationException)
+def handle_auth_error(request):
+    """Watches for AuthenticationException
     If one is thrown, log and abort 401 instead
     """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except AuthenticationException as e:
-            logger.exception(e)
-            return HTTPUnauthorized()
-    return wrapper
+    logger.exception(request.exception)
+    return HTTPUnauthorized()
 
 @view_config(route_name='bokeh.login', request_method='GET')
 def login_get(request):
@@ -80,12 +74,17 @@ def logout(request):
     '''
     return request.registry.authentication.logout(request)
 
-@view_config(route_name='bokeh.publish', request_method='POST', renderer='json')
+@view_config(
+    route_name='bokeh.publish',
+    request_method='POST',
+    renderer='json',
+    permission='edit',
+    )
 def publish(request):
     docid = request.matchdict['docid']
     doc = docs.Doc.load(request.registry.servermodel_storage, docid)
-    if not request.registry.authentication.can_write_doc(request, docid):
-        return HTTPUnauthorized()
+    if not request.registry.authorization.can_write_doc(request, docid):
+        return HTTPUnauthorized() # XXX this can die when declarative security
     doc.published = True
     doc.save(request.registry.servermodel_storage)
     return dict(status='success')

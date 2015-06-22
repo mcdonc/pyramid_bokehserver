@@ -8,16 +8,21 @@ from bokeh.settings import settings as bokeh_settings
 
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
+from pyramid.security import (
+    Allow,
+    Everyone,
+    Authenticated,
+    )
 
 from . import websocket
 from .zmqpub import Publisher
 
 from .server_backends import (
     InMemoryServerModelStorage,
-    MultiUserAuthentication,
     RedisServerModelStorage,
     ShelveServerModelStorage,
-    SingleUserAuthentication,
+    BokehAuthenticationPolicy,
+    BokehAuthorizationPolicy,
 )
 from .serverbb import (
     InMemoryBackboneStorage,
@@ -32,8 +37,38 @@ if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
     print("Unrecognized default backend: '%s'. Accepted values are: 'redis', 'shelve', 'memory'" % DEFAULT_BACKEND)
     sys.exit(1)
 
+
+class RootContext(object):
+    def __init__(self, request):
+        self.request = request
+    def __acl__(self):
+        return [(Allow, Authenticated, 'edit'), (Allow, Everyone, 'view')]
+
+class DocumentContext(object):
+    def __init__(self, request):
+        self.request = request
+
+    def __acl__(self):
+        doc = self.request.current_document()
+        if doc is None:
+            return []
+        rw_users = getattr(doc, 'rw_users', Authenticated)
+        r_users = getattr(doc, 'r_users', Everyone)
+        return [
+            (Allow, rw_users, 'edit'),
+            (Allow, r_users, 'view'),
+            ]
+
+
 def current_user(request):
     return request.registry.authentication.current_user(request)
+
+def current_document(request):
+    docid = request.matchdict.get('docid', None)
+    if docid is None:
+        return None
+    doc = request.registry.backbone_storage.get_document(docid)
+    return doc
 
 def getapp(settings): # settings should be a bokehserver.settings.Settings
     """ This function returns a Pyramid WSGI application representing the Bokeh
@@ -61,10 +96,13 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
         bbstorage = ShelveBackboneStorage()
         servermodel_storage = ShelveServerModelStorage()
 
-    if not settings.multi_user:
-        authentication = SingleUserAuthentication()
+    if settings.multi_user:
+        authentication = BokehAuthenticationPolicy()
     else:
-        authentication = MultiUserAuthentication()
+        authentication = BokehAuthenticationPolicy(
+            default_username='defaultuser'
+            )
+    authorization = BokehAuthorizationPolicy()
     url_prefix = settings.url_prefix
     publisher = Publisher(settings.ctx, settings.pub_zmqaddr, Queue())
 
@@ -87,13 +125,18 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     config.registry.servermodel_storage = servermodel_storage
     config.registry.backbone_storage = bbstorage
     config.registry.authentication = authentication
+    config.registry.authorization = authorization
     config.registry.bokehjsdir = bokeh_settings.bokehjsdir()
     config.registry.bokehjssrcdir = bokeh_settings.bokehjssrcdir()
+    config.registry.documentcontext = DocumentContext
 
     # add a ``request.current_user()`` API
     config.add_request_method(current_user)
+    # add a ``request.current_document()`` API
+    config.add_request_method(current_document)
 
-    # configure a session factory for request.session access
+    # configure a session factory for request.session access and
+    # SessionAuthenticationPolicy usage
     session_factory = SignedCookieSessionFactory(settings.secret_key)
     config.set_session_factory(session_factory)
 
@@ -105,6 +148,13 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
 
     # register routes and default views
     config.include('.views')
+
+    # set up default declarative security context
+    config.set_root_factory(RootContext)
+
+    # set up view-time security policies
+    config.set_authentication_policy(authentication)
+    config.set_authorization_policy(authorization)
 
     # return a WSGI application
     return config.make_wsgi_app()
