@@ -66,8 +66,10 @@ class RedisServerModelStorage(object):
             pipe.execute()
 
 class InMemoryServerModelStorage(object):
-    def __init__(self):
-        self._data = {}
+    def __init__(self, data=None):
+        if data is None:
+            data = {}
+        self._data = data
 
     def get(self, key):
         data = self._data.get(key, None)
@@ -86,29 +88,39 @@ class InMemoryServerModelStorage(object):
 
 class ShelveServerModelStorage(object):
 
+    def __init__(self, shelve_module=shelve):
+        # shelve_module overrideable for testing purposes
+        self.shelve_module = shelve_module
+
     def get(self, key):
-        _data = shelve.open('bokeh.server')
-        key = encode_utf8(key)
-        data = _data.get(key, None)
-        if data is None:
-            return None
-        attrs = json.loads(decode_utf8(data))
-        _data.close()
+        _data = self.shelve_module.open('bokeh.server')
+        try:
+            key = encode_utf8(key)
+            data = _data.get(key, None)
+            if data is None:
+                return None
+            attrs = json.loads(decode_utf8(data))
+        finally:
+            _data.close()
         return attrs
 
     def set(self, key, val):
-        _data = shelve.open('bokeh.server')
-        key = encode_utf8(key)
-        _data[key] = json.dumps(val)
-        _data.close()
+        _data = self.shelve_module.open('bokeh.server')
+        try:
+            key = encode_utf8(key)
+            _data[key] = json.dumps(val)
+        finally:
+            _data.close()
 
     def create(self, key, val):
         key = str(key)
-        _data = shelve.open('bokeh.server')
-        if key in _data:
-            raise DataIntegrityException("%s already exists" % key)
-        _data[key] = json.dumps(val)
-        _data.close()
+        _data = self.shelve_module.open('bokeh.server')
+        try:
+            if key in _data:
+                raise DataIntegrityException("%s already exists" % key)
+            _data[key] = json.dumps(val)
+        finally:
+            _data.close()
 
 class AbstractAuthentication(object):
     def current_user_name(self, request):

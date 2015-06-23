@@ -60,6 +60,74 @@ class TestRedisServerModelStorage(unittest.TestCase):
         self.assertTrue(inst.redisconn.entered)
         self.assertTrue(inst.redisconn.exited)
 
+class TestInMemoryServerModelStorage(unittest.TestCase):
+    def _makeOne(self):
+        import json
+        from pyramid_bokehserver.server_backends import (
+            InMemoryServerModelStorage)
+        inst = InMemoryServerModelStorage({'json':json.dumps([1,2,3])})
+        return inst
+
+    def test_get_notexists(self):
+        inst = self._makeOne()
+        self.assertEqual(inst.get('foo'), None)
+
+    def test_get_exists(self):
+        inst = self._makeOne()
+        self.assertEqual(inst.get('json'), [1,2,3])
+
+    def test_set(self):
+        inst = self._makeOne()
+        inst.set('foo', 'bar')
+        self.assertEqual(inst._data['foo'], '"bar"')
+
+    def test_create_exists(self):
+        from bokeh.exceptions import DataIntegrityException
+        inst = self._makeOne()
+        self.assertRaises(DataIntegrityException, inst.create, 'json', None)
+
+    def test_create_notexists(self):
+        inst = self._makeOne()
+        inst.create('foo','bar')
+        self.assertEqual(inst._data['foo'], '"bar"')
+
+class ShelveServerModelStorage(unittest.TestCase):
+    def _makeOne(self):
+        import json
+        from pyramid_bokehserver.server_backends import (
+            ShelveServerModelStorage)
+        shelve_module = DummyShelve({'json':json.dumps([1,2,3])})
+        inst = ShelveServerModelStorage(shelve_module)
+        return inst
+
+    def test_get_notexists(self):
+        inst = self._makeOne()
+        self.assertEqual(inst.get('foo'), None)
+        self.assertTrue(inst.shelve_module.closed)
+
+    def test_get_exists(self):
+        inst = self._makeOne()
+        self.assertEqual(inst.get('json'), [1,2,3])
+        self.assertTrue(inst.shelve_module.closed)
+
+    def test_set(self):
+        inst = self._makeOne()
+        inst.set('foo', 'bar')
+        self.assertEqual(inst.shelve_module._data['foo'], '"bar"')
+        self.assertTrue(inst.shelve_module.closed)
+
+    def test_create_exists(self):
+        from bokeh.exceptions import DataIntegrityException
+        inst = self._makeOne()
+        self.assertRaises(DataIntegrityException, inst.create, 'json', None)
+        self.assertTrue(inst.shelve_module.closed)
+
+    def test_create_notexists(self):
+        inst = self._makeOne()
+        inst.create('foo','bar')
+        self.assertEqual(inst.shelve_module._data['foo'], '"bar"')
+        self.assertTrue(inst.shelve_module.closed)
+
 class DummyRedisConn(dict):
     def __init__(self, exists, *arg, **kw):
         dict.__init__(self, *arg, **kw)
@@ -89,3 +157,22 @@ class DummyRedisConn(dict):
 
     def exists(self, key):
         return self._exists
+
+class DummyShelve(object):
+    def __init__(self, data):
+        self._data = data
+
+    def open(self, fn):
+        return self
+
+    def get(self, key, default=None):
+        return self._data.get(key, default)
+
+    def close(self):
+        self.closed = True
+
+    def __setitem__(self, k, v):
+        self._data[k] = v
+
+    def __contains__(self, k):
+        return k in self._data
