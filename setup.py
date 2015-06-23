@@ -24,6 +24,16 @@ requires = [
     'tornado',
     ]
 
+tests_require = [
+    'WebTest >= 1.3.1', # py3 compat
+    ]
+
+testing_extras = tests_require + [
+    'nose',
+    'coverage',
+    'virtualenv', # for scaffolding tests
+    ]
+
 setup(name='pyramid_bokehserver',
       version='0.0',
       description='pyramid_bokehserver',
@@ -41,9 +51,12 @@ setup(name='pyramid_bokehserver',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      install_requires=requires,
-      tests_require=requires,
+      install_requires = requires,
+      tests_require = tests_require,
       test_suite="pyramid_bokehserver",
+      extras_require = {
+          'testing':testing_extras,
+          },
       entry_points="""\
       [paste.app_factory]
       main = pyramid_bokehserver:main

@@ -7,7 +7,7 @@ from pyramid.response import Response
 from functools import update_wrapper, wraps
 from six import string_types
 
-def crossdomain(origin=None, methods=None, headers=None,
+def crossdomain(origin='*', methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
                 automatic_options=True):
     if methods is not None:
@@ -20,7 +20,7 @@ def crossdomain(origin=None, methods=None, headers=None,
         origin = ', '.join(origin)
 
     if isinstance(max_age, timedelta):
-        max_age = max_age.total_seconds()
+        max_age = int(max_age.total_seconds())
 
     def decorator(f):
         @wraps(f)
