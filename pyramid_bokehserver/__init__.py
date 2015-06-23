@@ -101,11 +101,14 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
         servermodel_storage = ShelveServerModelStorage()
 
     if settings.multi_user:
-        authentication = BokehAuthenticationPolicy()
+        default_username = None
     else:
-        authentication = BokehAuthenticationPolicy(
-            default_username='defaultuser'
-            )
+        default_username = 'defaultuser'
+
+    authentication = BokehAuthenticationPolicy(
+        default_username=default_username,
+        )
+
     authorization = BokehAuthorizationPolicy()
     url_prefix = settings.url_prefix
     publisher = Publisher(settings.ctx, settings.pub_zmqaddr, Queue())
@@ -133,6 +136,7 @@ def getapp(settings): # settings should be a bokehserver.settings.Settings
     config.registry.bokehjsdir = bokeh_settings.bokehjsdir()
     config.registry.bokehjssrcdir = bokeh_settings.bokehjssrcdir()
     config.registry.documentcontext = DocumentContext
+    config.registry.default_username = default_username
 
     # add a ``request.current_user()`` API
     config.add_request_method(current_user)

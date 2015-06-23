@@ -1,4 +1,5 @@
 import os
+import sys
 
 from setuptools import setup, find_packages
 
@@ -27,6 +28,9 @@ requires = [
 tests_require = [
     'WebTest >= 1.3.1', # py3 compat
     ]
+
+if sys.version_info[:2] <= (2,7):
+    tests_require.append('mock')
 
 testing_extras = tests_require + [
     'nose',

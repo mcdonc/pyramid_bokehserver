@@ -35,14 +35,7 @@ class AbstractAuthentication(object):
     def current_user(self, request):
         """returns bokeh User object from self.current_user_name
         """
-        username = self.current_user_name()
-        if username is None:
-            return None
-        bokehuser = user.User.load(
-            request.registry.servermodel_storage,
-            username
-            )
-        return bokehuser
+        raise NotImplementedError
 
     def login_get(self, request):
         """custom login view
@@ -92,6 +85,7 @@ class BokehAuthenticationPolicy(
     AbstractAuthentication,
     SessionAuthenticationPolicy,
     ):
+
     def __init__(
         self,
         prefix='auth.',
@@ -107,31 +101,26 @@ class BokehAuthenticationPolicy(
             )
         self.default_username = default_username
 
-    def _is_defaultuser(self):
-        default_username = self.default_username
-        current_username = self.current_user_name()
-        if default_username and default_username == current_username:
-            return True
-        return False
-
     def current_user_name(self, request):
-        return request.authenticated_userid
+        # below attribute access delegates to self.unauthenticated_userid
+        # if there is a default username set, this will always return
+        # the default username # XXX should get rid of this API
+        return self.authenticated_userid(request)
 
     def current_user(self, request):
-        """returns bokeh User object matching defaultuser
-        if the user does not exist, one will be created
+        """returns bokeh User object matching current username.
+        If the user does not exist and a default username is set, one will
+        be created.
         """
-        username = self.current_user_name(request)
+        username = self.authenticated_userid(request)
         bokehuser = user.User.load(
             request.registry.servermodel_storage,
             username
             )
-        if bokehuser is not None:
-            return bokehuser
-        if self.default_username is not None:
+        if (bokehuser is None) and (self.default_username is not None):
             bokehuser = user.new_user(
                 request.registry.servermodel_storage,
-                username,
+                self.default_username,
                 str(uuid.uuid4()),
                 apikey='nokey',
                 docs=[],
@@ -267,16 +256,25 @@ class BokehAuthenticationPolicy(
     def unauthenticated_userid(self, request):
         # users can be authenticated by logging in (setting the session)
         # or by setting fields in the http header (api keys, etc..)
+        if self.default_username is not None:
+            return self.default_username
         bokehuser = user.apiuser_from_request(request)
         if bokehuser:
             return bokehuser.username
-        return request.session.get(self.userid_key, self.default_username)
+        return request.session.get(self.userid_key)
 
 class BokehAuthorizationPolicy(ACLAuthorizationPolicy):
+    def _is_defaultuser(self, request):
+        default_username = request.registry.default_username
+        if not default_username:
+            return False
+        current_username = request.authenticated_userid
+        return default_username == current_username
+
     def can_write_doc(
         self, request, doc_or_docid, temporary_docid=None, userobj=None
         ):
-        if userobj is None and self._is_defaultuser():
+        if userobj is None and self._is_defaultuser(request):
             return True
         if not isinstance(doc_or_docid, docs.Doc):
             doc = docs.Doc.load(
@@ -286,7 +284,7 @@ class BokehAuthorizationPolicy(ACLAuthorizationPolicy):
         else:
             doc = doc_or_docid
         if userobj is None:
-            userobj = self.current_user(request)
+            userobj = request.current_user()
         return convenience.can_write_from_request(
             doc, request, userobj,
             temporary_docid=temporary_docid
@@ -295,7 +293,7 @@ class BokehAuthorizationPolicy(ACLAuthorizationPolicy):
     def can_read_doc(
         self, request, doc_or_docid, temporary_docid=None, userobj=None
         ):
-        if userobj is None and self._is_defaultuser():
+        if userobj is None and self._is_defaultuser(request):
             return True
         if not isinstance(doc_or_docid, docs.Doc):
             doc = docs.Doc.load(
@@ -304,5 +302,5 @@ class BokehAuthorizationPolicy(ACLAuthorizationPolicy):
         else:
             doc = doc_or_docid
         if userobj is None:
-            userobj = self.current_user(request)
+            userobj = request.current_user()
         return convenience.can_read_from_request(doc, request, userobj)
