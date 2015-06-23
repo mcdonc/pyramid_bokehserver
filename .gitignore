@@ -3,3 +3,8 @@ dist/
 env/
 *.egg-info
 bokeh.server
+.coverage
+.tox/
+coverage*xml
+nosetests*xml
+
