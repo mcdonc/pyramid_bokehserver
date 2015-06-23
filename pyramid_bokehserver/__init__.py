@@ -21,9 +21,13 @@ from .server_backends import (
     InMemoryServerModelStorage,
     RedisServerModelStorage,
     ShelveServerModelStorage,
+)
+
+from .auth import (
     BokehAuthenticationPolicy,
     BokehAuthorizationPolicy,
-)
+    )
+
 from .serverbb import (
     InMemoryBackboneStorage,
     RedisBackboneStorage,
