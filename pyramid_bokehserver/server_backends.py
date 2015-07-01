@@ -36,7 +36,7 @@ class RedisServerModelStorage(object):
         data = self.redisconn.get(key)
         if data is None:
             return None
-        attrs = json.loads(data.decode('utf-8'))
+        attrs = json.loads(decode_utf8(data))
         return attrs
 
     def set(self, key, val):

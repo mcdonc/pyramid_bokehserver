@@ -1,5 +1,9 @@
-import mock
 import unittest
+
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 from pyramid import testing
 
